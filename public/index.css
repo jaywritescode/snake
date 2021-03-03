@@ -1,1 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Cute+Font&display=swap");
 
+body {
+  font-family: "Cute Font", cursive;
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+header {
+  font-size: 7rem;
+  text-transform: uppercase;
+}
