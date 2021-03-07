@@ -152,6 +152,18 @@ const _update = () => {
   render(template(), renderRoot);
 };
 
+window.addEventListener('keydown', (evt) => {
+  if (state !== States.IN_PROGRESS) {
+    return;
+  }
+
+  const { code } = evt;
+  if (Object.keys(keyFunctions).includes(code)) {
+    keyFunctions[code].call();
+    evt.preventDefault();
+  }
+})
+
 const classes = (idx) => {
   return {
     [stylesheet.classes.snake]: snake.has(idx),
