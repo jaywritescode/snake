@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { html, render } from 'lit-html';
+import { html, render, nothing } from 'lit-html';
 import { repeat } from 'lit-html/directives/repeat';
 import jss from 'jss';
 import preset from 'jss-preset-default';
@@ -8,9 +8,9 @@ import './index.css';
 
 jss.setup(preset());
 
-const width = 28;
-const height = 16;
-const area = (width + 2) * (height + 2);
+const width = 30;
+const height = 18;
+const area = width * height;
 
 const States = {
   WAITING: 'waiting',
@@ -18,10 +18,38 @@ const States = {
   GAME_OVER: 'game over',
 };
 
+const RIGHT = 'right', LEFT = 'left', UP = 'up', DOWN = 'down';
+
+const keyFunctions = {
+  ArrowUp: () => {
+    snake.direction = snake.direction == DOWN ? DOWN : UP;
+  },
+  ArrowDown: () => {
+    snake.direction = snake.direction == UP ? UP : DOWN;
+  },
+  ArrowRight: () => {
+    snake.direction = snake.direction == LEFT ? LEFT : RIGHT;
+  },
+  ArrowLeft: () => {
+    snake.direction = snake.direction == RIGHT ? RIGHT : LEFT;
+  },
+  Space: () => {
+    isPaused ? unpause() : pause();
+  },
+};
+
+// These values can never overflow or underflow because of the wall around the board.
+const moveFunctions = Object.freeze({
+  [RIGHT]: (coord) => coord + 1, 
+  [LEFT]: (coord) => coord - 1,
+  [UP]: (coord) => coord - width,
+  [DOWN]: (coord) => coord + width,
+});
+
 const styles = {
   'board': {
     display: 'grid',
-    gridTemplateColumns: `repeat(${width + 2}, 1fr)`,
+    gridTemplateColumns: `repeat(${width}, 1fr)`,
     gridGap: '2px',
 
     border: '3px solid rgb(43, 51, 104)',
@@ -32,55 +60,86 @@ const styles = {
 const stylesheet = jss.createStyleSheet(styles);
 stylesheet.attach();
 
+const Snake = (initialCoords) => {
+  return {
+    coords: initialCoords,
+    direction: RIGHT,
+    
+    head() {
+      return _.last(this.coords);
+    },
+
+    has(coord) {
+      return this.coords.includes(coord);
+    },
+
+    collides() {
+      return _.uniq(this.coords).length != this.coords.length;
+    },
+
+    size() {
+      return initialCoords.length;
+    },
+  };
+}
+
+/* Nil state */
 let state = States.WAITING;
+const snake = Snake();
+const walls = new Set(
+  Array.of(
+    _.range(width), // top
+    _.range(0, area, width), // left side
+    _.times(width, (i) => area - i - 1), // bottom
+    _.range(width - 1, area, width) // right side
+  ).flat());
+const food = new Set();
 
-function initialize() {
+const assignFood = () => {
+  return _.sample(_.range(area).filter(x => !(snake.has(x) || walls.has(x) || food.has(x))))
+}
 
+const forward = () => {
+  const { direction } = snake;
+  return moveFunctions[direction](snake.head());
+};
+
+const doNext = () => {
+  let _;
+  const next = forward();
+
+  if (food.has(next)) {
+    snake.coords = [...snake.coords, next]
+  }
+  else {
+    [_, ...snake.coords] = snake.coords;
+  }
 }
 
 const reset = () => {
-  console.log('reset');
+  snake.coords = [[3, 3], [3, 4], [3, 5]].map(([row, col]) => row * width + col);
+  food.add(assignFood());
+  state = States.IN_PROGRESS;
+  _update();
 };
 
-// const RIGHT = 'right', LEFT = 'left', UP = 'up', DOWN = 'down';
+const _update = () => {
+  render(template(), renderRoot);
+}
 
-// const initialCoords = [[3, 3], [3, 4], [3, 5]].map(([row, col]) => row * width + col);
-// const initialSnake = {
-//   coords: initialCoords,
-//   direction: RIGHT,
-
-//   head() {
-//     return _.last(this.coords)
-//   },
-
-//   collides() {
-//     return _.uniq(this.coords).length != this.size();
-//   },
-
-//   size() {
-//     return this.coords.length;
-//   },
-
-//   has(coord) {
-//     return this.coords.includes(coord);
-//   },
-// };
-
-// The game logic assumes that there is a wall around the border of the board.
-// const initialWall = new Set(
-//   Array.of(
-//     _.range(width), // top
-//     _.range(0, area, width), // left side
-//     _.times(width, (i) => area - i - 1), // bottom
-//     _.range(width - 1, area, width) // right side
-//   ).flat()
-// );
-
-const cells = repeat(_.range(area), _.identity, idx => html`<div id="cell-${idx}" class="cell" />`);
-const board = html`
+const cells = repeat(_.range(area), _.identity, 
+  idx => html`<div id="cell-${idx}" class=${['cell', walls.has(idx) ? 'wall' : ''].join(' ')} />`);
+const overlay = () => {
+  if (state === States.WAITING) {
+    return html`<div class="overlay" @click=${reset}>click to start</div>`;
+  }
+  return nothing;
+}
+const template = () => html`
   <div class="${stylesheet.classes.board}">
     ${cells}
-    ${state === States.WAITING && html`<div class="overlay" @click=${reset}>click to start</div>`}
-  </div>`;
-
-render(board, document.getElementById('app'));
+    ${overlay()}
+  </div>
+  <button @click=${doNext}>next</button>`;
+const renderRoot = document.getElementById('app');
+_update();
