@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { html, render, nothing } from 'lit-html';
 import { repeat } from 'lit-html/directives/repeat';
+import { classMap } from 'lit-html/directives/class-map';
 import jss from 'jss';
 import preset from 'jss-preset-default';
 
@@ -74,7 +75,7 @@ const styles = {
 const stylesheet = jss.createStyleSheet(styles);
 stylesheet.attach();
 
-const Snake = (initialCoords) => {
+const Snake = (initialCoords = []) => {
   return {
     coords: initialCoords,
     direction: RIGHT,
@@ -141,8 +142,15 @@ const _update = () => {
   render(template(), renderRoot);
 }
 
+const classes = (idx) => {
+  return { 
+    [stylesheet.classes.snake]: snake.has(idx), 
+    [stylesheet.classes.food]: food.has(idx), 
+    [stylesheet.classes.wall]: walls.has(idx) 
+  };
+}
 const cells = repeat(_.range(area), _.identity, 
-  idx => html`<div id="cell-${idx}" class=${['cell', walls.has(idx) ? stylesheet.classes.wall : ''].join(' ')} />`);
+  idx => html`<div id="cell-${idx}" class="cell ${classMap(classes(idx))}" />`);
 const overlay = () => {
   if (state === States.WAITING) {
     return html`<div class="overlay" @click=${reset}>click to start</div>`;
