@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Cute+Font&display=swap");
 
+html {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "Cute Font", cursive;
   max-width: 840px;
