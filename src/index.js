@@ -120,6 +120,15 @@ const assignFood = () => {
   );
 };
 
+const updateFood = (coord) => {
+  if (!food.has(coord)) {
+    return;
+  }
+
+  food.add(assignFood());
+  food.delete(coord);
+}
+
 const forward = () => {
   const { direction } = snake;
   return moveFunctions[direction](snake.head());
@@ -131,6 +140,7 @@ const doNext = () => {
 
   if (food.has(next)) {
     snake.coords = [...snake.coords, next];
+    updateFood(next);
   } else {
     [_, ...snake.coords] = [...snake.coords, next];
   }
