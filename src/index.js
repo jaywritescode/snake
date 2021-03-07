@@ -19,7 +19,10 @@ const States = {
   GAME_OVER: 'game over',
 };
 
-const RIGHT = 'right', LEFT = 'left', UP = 'up', DOWN = 'down';
+const RIGHT = 'right',
+  LEFT = 'left',
+  UP = 'up',
+  DOWN = 'down';
 
 const keyFunctions = {
   ArrowUp: () => {
@@ -41,14 +44,14 @@ const keyFunctions = {
 
 // These values can never overflow or underflow because of the wall around the board.
 const moveFunctions = Object.freeze({
-  [RIGHT]: (coord) => coord + 1, 
+  [RIGHT]: (coord) => coord + 1,
   [LEFT]: (coord) => coord - 1,
   [UP]: (coord) => coord - width,
   [DOWN]: (coord) => coord + width,
 });
 
 const styles = {
-  'board': {
+  board: {
     display: 'grid',
     gridTemplateColumns: `repeat(${width}, 1fr)`,
     gridGap: '2px',
@@ -58,17 +61,17 @@ const styles = {
     cursor: 'none',
   },
 
-  'snake': {
+  snake: {
     backgroundColor: 'var(--snake-color)',
     borderRadius: '4px',
   },
 
-  'food': {
+  food: {
     backgroundColor: 'var(--food-color)',
     borderRadius: '50%',
   },
 
-  'wall': {
+  wall: {
     backgroundColor: 'var(--wall-color)',
   },
 };
@@ -79,7 +82,7 @@ const Snake = (initialCoords = []) => {
   return {
     coords: initialCoords,
     direction: RIGHT,
-    
+
     head() {
       return _.last(this.coords);
     },
@@ -96,7 +99,7 @@ const Snake = (initialCoords = []) => {
       return initialCoords.length;
     },
   };
-}
+};
 
 /* Nil state */
 let state = States.WAITING;
@@ -106,13 +109,16 @@ const walls = new Set(
     _.range(width), // top
     _.range(0, area, width), // left side
     _.times(width, (i) => area - i - 1), // bottom
-    _.range(width - 1, area, width) // right side
-  ).flat());
+    _.range(width - 1, area, width), // right side
+  ).flat(),
+);
 const food = new Set();
 
 const assignFood = () => {
-  return _.sample(_.range(area).filter(x => !(snake.has(x) || walls.has(x) || food.has(x))))
-}
+  return _.sample(
+    _.range(area).filter((x) => !(snake.has(x) || walls.has(x) || food.has(x))),
+  );
+};
 
 const forward = () => {
   const { direction } = snake;
@@ -124,15 +130,18 @@ const doNext = () => {
   const next = forward();
 
   if (food.has(next)) {
-    snake.coords = [...snake.coords, next]
-  }
-  else {
+    snake.coords = [...snake.coords, next];
+  } else {
     [_, ...snake.coords] = snake.coords;
   }
-}
+};
 
 const reset = () => {
-  snake.coords = [[3, 3], [3, 4], [3, 5]].map(([row, col]) => row * width + col);
+  snake.coords = [
+    [3, 3],
+    [3, 4],
+    [3, 5],
+  ].map(([row, col]) => row * width + col);
   food.add(assignFood());
   state = States.IN_PROGRESS;
   _update();
@@ -140,27 +149,29 @@ const reset = () => {
 
 const _update = () => {
   render(template(), renderRoot);
-}
+};
 
 const classes = (idx) => {
-  return { 
-    [stylesheet.classes.snake]: snake.has(idx), 
-    [stylesheet.classes.food]: food.has(idx), 
-    [stylesheet.classes.wall]: walls.has(idx) 
+  return {
+    [stylesheet.classes.snake]: snake.has(idx),
+    [stylesheet.classes.food]: food.has(idx),
+    [stylesheet.classes.wall]: walls.has(idx),
   };
-}
-const cells = repeat(_.range(area), _.identity, 
-  idx => html`<div id="cell-${idx}" class="cell ${classMap(classes(idx))}" />`);
+};
+const cells = repeat(
+  _.range(area),
+  _.identity,
+  (idx) =>
+    html`<div id="cell-${idx}" class="cell ${classMap(classes(idx))}" />`,
+);
 const overlay = () => {
   if (state === States.WAITING) {
     return html`<div class="overlay" @click=${reset}>click to start</div>`;
   }
   return nothing;
-}
-const template = () => html`
-  <div class="${stylesheet.classes.board}">
-    ${cells}
-    ${overlay()}
+};
+const template = () => html` <div class="${stylesheet.classes.board}">
+    ${cells} ${overlay()}
   </div>
   <button @click=${doNext}>next</button>`;
 const renderRoot = document.getElementById('app');
