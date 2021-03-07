@@ -22,17 +22,3 @@
 .cell {
   padding-top: 100%; /* forces the 1:1 aspect ratio */
 }
-
-.snake {
-  background-color: var(--snake-color);
-  border-radius: 4px;
-}
-
-.food {
-  background-color: var(--food-color);
-  border-radius: 50%;
-}
-
-.wall {
-  background-color: var(--wall-color);
-}

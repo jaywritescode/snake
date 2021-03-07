@@ -56,6 +56,20 @@ const styles = {
     position: 'relative',
     cursor: 'none',
   },
+
+  'snake': {
+    backgroundColor: 'var(--snake-color)',
+    borderRadius: '4px',
+  },
+
+  'food': {
+    backgroundColor: 'var(--food-color)',
+    borderRadius: '50%',
+  },
+
+  'wall': {
+    backgroundColor: 'var(--wall-color)',
+  },
 };
 const stylesheet = jss.createStyleSheet(styles);
 stylesheet.attach();
@@ -128,7 +142,7 @@ const _update = () => {
 }
 
 const cells = repeat(_.range(area), _.identity, 
-  idx => html`<div id="cell-${idx}" class=${['cell', walls.has(idx) ? 'wall' : ''].join(' ')} />`);
+  idx => html`<div id="cell-${idx}" class=${['cell', walls.has(idx) ? stylesheet.classes.wall : ''].join(' ')} />`);
 const overlay = () => {
   if (state === States.WAITING) {
     return html`<div class="overlay" @click=${reset}>click to start</div>`;
