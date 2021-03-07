@@ -132,8 +132,9 @@ const doNext = () => {
   if (food.has(next)) {
     snake.coords = [...snake.coords, next];
   } else {
-    [_, ...snake.coords] = snake.coords;
+    [_, ...snake.coords] = [...snake.coords, next];
   }
+  _update();
 };
 
 const reset = () => {
