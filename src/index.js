@@ -12,6 +12,7 @@ jss.setup(preset());
 const width = 30;
 const height = 18;
 const area = width * height;
+const speed = 200;
 
 const States = {
   WAITING: 'waiting',
@@ -113,6 +114,8 @@ const walls = new Set(
   ).flat(),
 );
 const food = new Set();
+let timer = null;
+let isPaused = false;
 
 const assignFood = () => {
   return _.sample(
@@ -127,7 +130,7 @@ const updateFood = (coord) => {
 
   food.add(assignFood());
   food.delete(coord);
-}
+};
 
 const forward = () => {
   const { direction } = snake;
@@ -144,6 +147,10 @@ const doNext = () => {
   } else {
     [_, ...snake.coords] = [...snake.coords, next];
   }
+
+  if (snake.collides() || walls.has(snake.head())) {
+    gameOver();
+  }
   _update();
 };
 
@@ -156,6 +163,26 @@ const reset = () => {
   food.add(assignFood());
   state = States.IN_PROGRESS;
   _update();
+};
+
+const start = () => {
+  reset();
+  run();
+};
+
+const run = () => {
+  if (timer) {
+    return;
+  }
+
+  isPaused = false;
+  timer = setInterval(doNext, speed);
+};
+
+const gameOver = () => {
+  clearInterval(timer);
+  timer = null;
+  state = States.GAME_OVER;
 };
 
 const _update = () => {
@@ -172,7 +199,7 @@ window.addEventListener('keydown', (evt) => {
     keyFunctions[code].call();
     evt.preventDefault();
   }
-})
+});
 
 const classes = (idx) => {
   return {
@@ -188,10 +215,14 @@ const cells = repeat(
     html`<div id="cell-${idx}" class="cell ${classMap(classes(idx))}" />`,
 );
 const overlay = () => {
-  if (state === States.WAITING) {
-    return html`<div class="overlay" @click=${reset}>click to start</div>`;
+  switch (state) {
+    case States.WAITING:
+      return html`<div class="overlay" @click=${start}>click to start</div>`;
+    case States.GAME_OVER:
+      return html`<div class="overlay" @click=${start}>game over</div>`;
+    default:
+      return nothing;
   }
-  return nothing;
 };
 const template = () => html` <div class="${stylesheet.classes.board}">
     ${cells} ${overlay()}
