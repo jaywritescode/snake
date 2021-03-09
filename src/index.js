@@ -7,8 +7,6 @@ import preset from 'jss-preset-default';
 
 import './index.css';
 
-jss.setup(preset());
-
 const width = 30;
 const height = 18;
 const area = width * height;
@@ -48,34 +46,6 @@ const moveFunctions = Object.freeze({
   [UP]: (coord) => coord - width,
   [DOWN]: (coord) => coord + width,
 });
-
-const styles = {
-  board: {
-    display: 'grid',
-    gridTemplateColumns: `repeat(${width}, 1fr)`,
-    gridGap: '2px',
-
-    border: '3px solid rgb(43, 51, 104)',
-    position: 'relative',
-    cursor: 'none',
-  },
-
-  snake: {
-    backgroundColor: 'var(--snake-color)',
-    borderRadius: '4px',
-  },
-
-  food: {
-    backgroundColor: 'var(--food-color)',
-    borderRadius: '50%',
-  },
-
-  wall: {
-    backgroundColor: 'var(--wall-color)',
-  },
-};
-const stylesheet = jss.createStyleSheet(styles);
-stylesheet.attach();
 
 const Snake = (initialCoords = []) => {
   return {
@@ -199,13 +169,44 @@ window.addEventListener('keydown', (evt) => {
   }
 });
 
+/* Presentation layer */
+
+jss.setup(preset());
+
+const styles = {
+  board: {
+    display: 'grid',
+    gridTemplateColumns: `repeat(${width}, 1fr)`,
+    gridGap: '2px',
+
+    border: '3px solid rgb(43, 51, 104)',
+    position: 'relative',
+    cursor: 'none',
+  },
+
+  snake: {
+    backgroundColor: 'var(--snake-color)',
+    borderRadius: '4px',
+  },
+
+  food: {
+    backgroundColor: 'var(--food-color)',
+    borderRadius: '50%',
+  },
+
+  wall: {
+    backgroundColor: 'var(--wall-color)',
+  },
+};
+const stylesheet = jss.createStyleSheet(styles);
+stylesheet.attach();
 
 const template = () => {
   function classes(idx) {
     return {
       [stylesheet.classes.snake]: snake.has(idx),
       [stylesheet.classes.food]: food.has(idx),
-      [stylesheet.classes.wall]: walls.has(idx),  
+      [stylesheet.classes.wall]: walls.has(idx),
     };
   }
 
@@ -214,12 +215,16 @@ const template = () => {
     [GAME_OVER]: html`<div class="overlay" @click=${start}>game over</div>`,
   };
 
-  return html`
-    <div class="${stylesheet.classes.board}">
-      ${repeat(_.range(area), _.identity, (idx) => html`<div id="cell-${idx}" class="cell ${classMap(classes(idx))}" />`)}
-      ${_.defaultTo(overlays[state], nothing)}
-    </div>`;
-}
+  return html` <div class="${stylesheet.classes.board}">
+    ${repeat(
+      _.range(area),
+      _.identity,
+      (idx) =>
+        html`<div id="cell-${idx}" class="cell ${classMap(classes(idx))}" />`,
+    )}
+    ${_.defaultTo(overlays[state], nothing)}
+  </div>`;
+};
 
 const renderRoot = document.getElementById('app');
 _update();
