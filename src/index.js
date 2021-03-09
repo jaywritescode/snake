@@ -226,7 +226,6 @@ const overlay = () => {
 };
 const template = () => html` <div class="${stylesheet.classes.board}">
     ${cells} ${overlay()}
-  </div>
-  <button @click=${doNext}>next</button>`;
+  </div>`;
 const renderRoot = document.getElementById('app');
 _update();
