@@ -14,11 +14,9 @@ const height = 18;
 const area = width * height;
 const speed = 200;
 
-const States = {
-  WAITING: 'waiting',
-  IN_PROGRESS: 'in progress',
-  GAME_OVER: 'game over',
-};
+const WAITING = 'waiting',
+  IN_PROGRESS = 'in progress',
+  GAME_OVER = 'game over';
 
 const RIGHT = 'right',
   LEFT = 'left',
@@ -102,8 +100,8 @@ const Snake = (initialCoords = []) => {
   };
 };
 
-/* Nil state */
-let state = States.WAITING;
+/* Initial state */
+let state = WAITING;
 const snake = Snake();
 const walls = new Set(
   Array.of(
@@ -161,7 +159,7 @@ const reset = () => {
     [3, 5],
   ].map(([row, col]) => row * width + col);
   food.add(assignFood());
-  state = States.IN_PROGRESS;
+  state = IN_PROGRESS;
   _update();
 };
 
@@ -182,7 +180,7 @@ const run = () => {
 const gameOver = () => {
   clearInterval(timer);
   timer = null;
-  state = States.GAME_OVER;
+  state = GAME_OVER;
 };
 
 const _update = () => {
@@ -190,7 +188,7 @@ const _update = () => {
 };
 
 window.addEventListener('keydown', (evt) => {
-  if (state !== States.IN_PROGRESS) {
+  if (state !== IN_PROGRESS) {
     return;
   }
 
@@ -201,31 +199,27 @@ window.addEventListener('keydown', (evt) => {
   }
 });
 
-const classes = (idx) => {
-  return {
-    [stylesheet.classes.snake]: snake.has(idx),
-    [stylesheet.classes.food]: food.has(idx),
-    [stylesheet.classes.wall]: walls.has(idx),
-  };
-};
-const cells = repeat(
-  _.range(area),
-  _.identity,
-  (idx) =>
-    html`<div id="cell-${idx}" class="cell ${classMap(classes(idx))}" />`,
-);
-const overlay = () => {
-  switch (state) {
-    case States.WAITING:
-      return html`<div class="overlay" @click=${start}>click to start</div>`;
-    case States.GAME_OVER:
-      return html`<div class="overlay" @click=${start}>game over</div>`;
-    default:
-      return nothing;
+
+const template = () => {
+  function classes(idx) {
+    return {
+      [stylesheet.classes.snake]: snake.has(idx),
+      [stylesheet.classes.food]: food.has(idx),
+      [stylesheet.classes.wall]: walls.has(idx),  
+    };
   }
-};
-const template = () => html` <div class="${stylesheet.classes.board}">
-    ${cells} ${overlay()}
-  </div>`;
+
+  const overlays = {
+    [WAITING]: html`<div class="overlay" @click=${start}>click to start</div>`,
+    [GAME_OVER]: html`<div class="overlay" @click=${start}>game over</div>`,
+  };
+
+  return html`
+    <div class="${stylesheet.classes.board}">
+      ${repeat(_.range(area), _.identity, (idx) => html`<div id="cell-${idx}" class="cell ${classMap(classes(idx))}" />`)}
+      ${_.defaultTo(overlays[state], nothing)}
+    </div>`;
+}
+
 const renderRoot = document.getElementById('app');
 _update();
