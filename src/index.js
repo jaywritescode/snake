@@ -156,12 +156,12 @@ const pause = () => {
   clearInterval(timer);
   timer = null;
   isPaused = true;
-}
+};
 
 const unpause = () => {
   isPaused = false;
   timer = setInterval(doNext, speed);
-}
+};
 
 window.addEventListener('keydown', (evt) => {
   if (state !== IN_PROGRESS) {
