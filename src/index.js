@@ -163,6 +163,8 @@ const unpause = () => {
   timer = setInterval(doNext, speed);
 };
 
+/* Presentation layer */
+
 window.addEventListener('keydown', (evt) => {
   if (state !== IN_PROGRESS) {
     return;
@@ -174,8 +176,6 @@ window.addEventListener('keydown', (evt) => {
     evt.preventDefault();
   }
 });
-
-/* Presentation layer */
 
 jss.setup(preset());
 
