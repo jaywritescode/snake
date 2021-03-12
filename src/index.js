@@ -130,7 +130,6 @@ const reset = () => {
   ].map(([row, col]) => row * width + col);
   food.add(assignFood());
   state = IN_PROGRESS;
-  _update();
 };
 
 const start = () => {
