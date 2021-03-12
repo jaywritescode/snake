@@ -119,7 +119,7 @@ const doNext = () => {
   if (snake.collides() || walls.has(snake.head())) {
     gameOver();
   }
-  _update();
+  updateView();
 };
 
 const reset = () => {
@@ -152,9 +152,16 @@ const gameOver = () => {
   state = GAME_OVER;
 };
 
-const _update = () => {
-  render(template(), renderRoot);
-};
+const pause = () => {
+  clearInterval(timer);
+  timer = null;
+  isPaused = true;
+}
+
+const unpause = () => {
+  isPaused = false;
+  timer = setInterval(doNext, speed);
+}
 
 window.addEventListener('keydown', (evt) => {
   if (state !== IN_PROGRESS) {
@@ -226,4 +233,7 @@ const template = () => {
 };
 
 const renderRoot = document.getElementById('app');
-_update();
+const updateView = () => {
+  render(template(), renderRoot);
+};
+updateView();
