@@ -55,10 +55,11 @@ const borders = new Set(
     _.range(width - 1, area, width), // right side
   ).flat(),
 );
+const initialSnake = [[3, 3], [3, 4], [3, 5],].map(([row, col]) => row * width + col);
 
-const Snake = (initialCoords = []) => {
+const Snake = () => {
   return {
-    coords: initialCoords,
+    coords: initialSnake,
     direction: RIGHT,
 
     head() {
