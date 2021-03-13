@@ -23,21 +23,28 @@ const RIGHT = 'right',
 
 const keyFunctions = {
   ArrowUp: () => {
-    snake.direction = snake.direction == DOWN ? DOWN : UP;
+    game.changeDirection(UP);
   },
-  ArrowDown: () => {
-    snake.direction = snake.direction == UP ? UP : DOWN;
+  ArrowDown: (snake) => {
+    game.changeDirection(DOWN);
   },
-  ArrowRight: () => {
-    snake.direction = snake.direction == LEFT ? LEFT : RIGHT;
+  ArrowRight: (snake) => {
+    game.changeDirection(RIGHT);
   },
-  ArrowLeft: () => {
-    snake.direction = snake.direction == RIGHT ? RIGHT : LEFT;
+  ArrowLeft: (snake) => {
+    game.changeDirection(LEFT);
   },
   Space: () => {
     isPaused ? unpause() : pause();
   },
 };
+
+const opposites = Object.freeze({
+  [UP]: DOWN,
+  [DOWN]: UP,
+  [RIGHT]: LEFT,
+  [LEFT]: RIGHT,
+});
 
 const moveFunctions = Object.freeze({
   [RIGHT]: (coord) => coord + 1,
@@ -47,14 +54,12 @@ const moveFunctions = Object.freeze({
 });
 
 // These are required to make sure the move functions above never overflow or underflow.
-const borders = new Set(
-  Array.of(
+const borders = Array.of(
     _.range(width), // top
     _.range(0, area, width), // left side
     _.times(width, (i) => area - i - 1), // bottom
     _.range(width - 1, area, width), // right side
-  ).flat(),
-);
+  ).flat();
 const initialSnake = [[3, 3], [3, 4], [3, 5],].map(([row, col]) => row * width + col);
 
 const Snake = () => {
@@ -82,61 +87,84 @@ const Snake = () => {
 
 /* Initial state */
 let state = WAITING;
-const snake = Snake();
-const walls = new Set(borders);
-const food = new Set();
+let game = null;
 let timer = null;
 let isPaused = false;
 
-const assignFood = () => {
-  return _.sample(
-    _.range(area).filter((x) => !(snake.has(x) || walls.has(x) || food.has(x))),
-  );
-};
+const Game = (walls = borders) => {
+  var snake = Snake();
+  var blocks = new Set(walls);
+  var food = _.tap(new Set(), set => set.add(getValidFoodCoord()));
 
-const updateFood = (coord) => {
-  if (!food.has(coord)) {
-    return;
+  function isSnake(coord) {
+    return snake.has(coord);
   }
 
-  food.add(assignFood());
-  food.delete(coord);
-};
+  function isWall(coord) {
+    return blocks.has(coord);
+  }
 
-const forward = () => {
-  const { direction } = snake;
-  return moveFunctions[direction](snake.head());
+  function isFood(coord) {
+    return food?.has(coord);
+  }
+
+  function getValidFoodCoord() {
+    return _.sample(
+      _.range(area).filter(coord => !(isSnake(coord) || isWall(coord) || isFood(coord))),
+    );
+  };
+
+  const updateFood = (coord) => {
+    food.add(getValidFoodCoord());
+    food.delete(coord);
+  };
+
+  const forward = () => {
+    const { direction } = snake;
+    return moveFunctions[direction](snake.head());
+  };
+
+  const update = () => {
+    let _;
+    const next = forward();
+
+    if (food.has(next)) {
+      snake.coords = [...snake.coords, next];
+      updateFood(next);
+    } else {
+      [_, ...snake.coords] = [...snake.coords, next];
+    }
+
+    return !(snake.collides() || blocks.has(snake.head()));
+  }
+
+  const changeDirection = (direction) => {
+    if (direction == opposites[snake.direction]) {
+      return;
+    }
+    snake.direction = direction;
+  }
+
+  return { isSnake, isWall, isFood, update, changeDirection };
 };
 
 const doNext = () => {
-  let _;
-  const next = forward();
-
-  if (food.has(next)) {
-    snake.coords = [...snake.coords, next];
-    updateFood(next);
-  } else {
-    [_, ...snake.coords] = [...snake.coords, next];
+  if (game.update()) {
+    updateView();
   }
-
-  if (snake.collides() || walls.has(snake.head())) {
+  else {
     gameOver();
   }
-  updateView();
-};
+}
 
 const reset = () => {
-  snake.coords = [
-    [3, 3],
-    [3, 4],
-    [3, 5],
-  ].map(([row, col]) => row * width + col);
-  food.add(assignFood());
+  game = Game();
   state = IN_PROGRESS;
 };
 
 const start = () => {
   reset();
+  updateView();
   run();
 };
 
@@ -212,10 +240,14 @@ stylesheet.attach();
 
 const template = () => {
   function classes(idx) {
+    if (!game) {
+      return false;
+    }
+
     return {
-      [stylesheet.classes.snake]: snake.has(idx),
-      [stylesheet.classes.food]: food.has(idx),
-      [stylesheet.classes.wall]: walls.has(idx),
+      [stylesheet.classes.snake]: game.isSnake(idx),
+      [stylesheet.classes.food]: game.isFood(idx),
+      [stylesheet.classes.wall]: game.isWall(idx),
     };
   }
 
