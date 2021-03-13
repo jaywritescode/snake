@@ -39,13 +39,22 @@ const keyFunctions = {
   },
 };
 
-// These values can never overflow or underflow because of the wall around the board.
 const moveFunctions = Object.freeze({
   [RIGHT]: (coord) => coord + 1,
   [LEFT]: (coord) => coord - 1,
   [UP]: (coord) => coord - width,
   [DOWN]: (coord) => coord + width,
 });
+
+// These are required to make sure the move functions above never overflow or underflow.
+const borders = new Set(
+  Array.of(
+    _.range(width), // top
+    _.range(0, area, width), // left side
+    _.times(width, (i) => area - i - 1), // bottom
+    _.range(width - 1, area, width), // right side
+  ).flat(),
+);
 
 const Snake = (initialCoords = []) => {
   return {
@@ -73,14 +82,7 @@ const Snake = (initialCoords = []) => {
 /* Initial state */
 let state = WAITING;
 const snake = Snake();
-const walls = new Set(
-  Array.of(
-    _.range(width), // top
-    _.range(0, area, width), // left side
-    _.times(width, (i) => area - i - 1), // bottom
-    _.range(width - 1, area, width), // right side
-  ).flat(),
-);
+const walls = new Set(borders);
 const food = new Set();
 let timer = null;
 let isPaused = false;
