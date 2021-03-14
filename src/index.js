@@ -55,12 +55,16 @@ const moveFunctions = Object.freeze({
 
 // These are required to make sure the move functions above never overflow or underflow.
 const borders = Array.of(
-    _.range(width), // top
-    _.range(0, area, width), // left side
-    _.times(width, (i) => area - i - 1), // bottom
-    _.range(width - 1, area, width), // right side
-  ).flat();
-const initialSnake = [[3, 3], [3, 4], [3, 5],].map(([row, col]) => row * width + col);
+  _.range(width), // top
+  _.range(0, area, width), // left side
+  _.times(width, (i) => area - i - 1), // bottom
+  _.range(width - 1, area, width), // right side
+).flat();
+const initialSnake = [
+  [3, 3],
+  [3, 4],
+  [3, 5],
+].map(([row, col]) => row * width + col);
 
 const Snake = () => {
   return {
@@ -94,7 +98,7 @@ let isPaused = false;
 const Game = (walls = borders) => {
   var snake = Snake();
   var blocks = new Set(walls);
-  var food = _.tap(new Set(), set => set.add(getValidFoodCoord()));
+  var food = _.tap(new Set(), (set) => set.add(getValidFoodCoord()));
 
   function isSnake(coord) {
     return snake.has(coord);
@@ -110,9 +114,11 @@ const Game = (walls = borders) => {
 
   function getValidFoodCoord() {
     return _.sample(
-      _.range(area).filter(coord => !(isSnake(coord) || isWall(coord) || isFood(coord))),
+      _.range(area).filter(
+        (coord) => !(isSnake(coord) || isWall(coord) || isFood(coord)),
+      ),
     );
-  };
+  }
 
   const updateFood = (coord) => {
     food.add(getValidFoodCoord());
@@ -136,14 +142,14 @@ const Game = (walls = borders) => {
     }
 
     return !(snake.collides() || blocks.has(snake.head()));
-  }
+  };
 
   const changeDirection = (direction) => {
     if (direction == opposites[snake.direction]) {
       return;
     }
     snake.direction = direction;
-  }
+  };
 
   return { isSnake, isWall, isFood, update, changeDirection };
 };
@@ -153,7 +159,7 @@ const doNext = () => {
     gameOver();
   }
   updateView();
-}
+};
 
 const reset = () => {
   game = Game();
