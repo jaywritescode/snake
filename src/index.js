@@ -149,12 +149,10 @@ const Game = (walls = borders) => {
 };
 
 const doNext = () => {
-  if (game.update()) {
-    updateView();
-  }
-  else {
+  if (!game.update()) {
     gameOver();
   }
+  updateView();
 }
 
 const reset = () => {
