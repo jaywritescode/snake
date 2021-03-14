@@ -35,7 +35,7 @@ const keyFunctions = {
     game.changeDirection(LEFT);
   },
   Space: () => {
-    isPaused ? unpause() : pause();
+    // isPaused ? unpause() : pause();
   },
 };
 
@@ -92,8 +92,7 @@ const Snake = () => {
 /* Initial state */
 let state = WAITING;
 let game = null;
-let timer = null;
-let isPaused = false;
+let timer;
 
 const Game = (walls = borders) => {
   var snake = Snake();
@@ -177,11 +176,6 @@ const start = () => {
 };
 
 const run = () => {
-  if (timer) {
-    return;
-  }
-
-  isPaused = false;
   timer = setInterval(doNext, speed);
 };
 
@@ -189,17 +183,6 @@ const gameOver = () => {
   clearInterval(timer);
   timer = null;
   state = GAME_OVER;
-};
-
-const pause = () => {
-  clearInterval(timer);
-  timer = null;
-  isPaused = true;
-};
-
-const unpause = () => {
-  isPaused = false;
-  timer = setInterval(doNext, speed);
 };
 
 /* Presentation layer */
