@@ -164,18 +164,14 @@ const doNext = () => {
   updateView();
 };
 
-const reset = () => {
+const start = () => {
   game = Game();
   state = IN_PROGRESS;
-};
-
-const start = () => {
-  reset();
-  updateView();
   run();
 };
 
 const run = () => {
+  updateView();
   timer = setInterval(doNext, speed);
 };
 
