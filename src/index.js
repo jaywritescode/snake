@@ -130,6 +130,17 @@ const Game = (walls = borders) => {
     return moveFunctions[direction](snake.head());
   };
 
+  const changeDirection = (direction) => {
+    if (direction == opposites[snake.direction]) {
+      return;
+    }
+    snake.direction = direction;
+  };
+
+  /**
+   *
+   * @returns false if game over, otherwise true
+   */
   const update = () => {
     let _;
     const next = forward();
@@ -142,13 +153,6 @@ const Game = (walls = borders) => {
     }
 
     return !(snake.collides() || blocks.has(snake.head()));
-  };
-
-  const changeDirection = (direction) => {
-    if (direction == opposites[snake.direction]) {
-      return;
-    }
-    snake.direction = direction;
   };
 
   return { isSnake, isWall, isFood, update, changeDirection };
