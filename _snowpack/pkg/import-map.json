@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "jss": "./jss.js",
+    "jss-preset-default": "./jss-preset-default.js",
+    "lit-html": "./lit-html.js",
+    "lit-html/directives/class-map": "./lit-html/directives/class-map.js",
+    "lit-html/directives/repeat": "./lit-html/directives/repeat.js",
+    "lodash": "./lodash.js"
+  }
+}

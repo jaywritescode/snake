@@ -1,11 +1,11 @@
-import _ from 'lodash';
-import { html, render, nothing } from 'lit-html';
-import { repeat } from 'lit-html/directives/repeat';
-import { classMap } from 'lit-html/directives/class-map';
-import jss from 'jss';
-import preset from 'jss-preset-default';
+import _ from '../_snowpack/pkg/lodash.js';
+import { html, render, nothing } from '../_snowpack/pkg/lit-html.js';
+import { repeat } from '../_snowpack/pkg/lit-html/directives/repeat.js';
+import { classMap } from '../_snowpack/pkg/lit-html/directives/class-map.js';
+import jss from '../_snowpack/pkg/jss.js';
+import preset from '../_snowpack/pkg/jss-preset-default.js';
 
-import './index.css';
+import './index.css.proxy.js';
 
 const width = 30;
 const height = 18;
