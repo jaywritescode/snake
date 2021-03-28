@@ -4,8 +4,8 @@
 name: Node.js CI
 
 on:
-  pull_request:
-    branches: [ gh-pages ]
+  release:
+    branches: [ main ]
 
 jobs:
   build:
