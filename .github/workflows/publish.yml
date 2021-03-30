@@ -16,14 +16,15 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    
+
     - name: Use Node.js 14.x
       uses: actions/setup-node@v1
       with:
         node-version: 14.x
+
     - run: npm ci
     - run: npm run build --if-present
-    
+
     - name: Deploy to Github Pages
       uses: JamesIves/github-pages-deploy-action@4.1.0
       with:
@@ -31,4 +32,4 @@ jobs:
         folder: build
 
     - name: Add .nojekyll file
-    - run: touch .nojekyll
+      run: touch .nojekyll
